@@ -12,6 +12,7 @@ The script implements API for customer data using FastAPI module
 from fastapi import FastAPI, status, HTTPException          # Required to create and API and handle status
 from pydantic import BaseModel                              # Type hints
 from typing import Optional                                 # Type annotations
+from fastapi.encoders import 
 
 ########################################################################################################################
 
@@ -77,6 +78,98 @@ app = FastAPI()
 
 
 ### Functions to create API methods
+
+@app.get("/")
+async def root() -> dict:
+    '''
+    Function to return message on base URL
+    ...
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    Dictionary
+    '''
+
+    return {"message": "Hello World"}
+
+
+@app.post("/customer")
+async def create_customer(item: Customer) -> str:
+    '''
+    Function to add a new customer
+    ...
+
+    Parameters
+    ----------
+    Customer
+
+    Returns
+    -------
+    JSON data
+    '''
+
+    # Encode the create customer item in JSON
+    # and return it along with the status code 201
+    json_compatible_item_data = jsonable_encoder(item)
+
+    return JSONResponse(
+                        content=json_compatible_item_data,
+                        status_code=201
+                    )
+
+
+@app.get("/customer/{customer_id}")
+async def read_customer(customer_id: str) -> str:
+    '''
+    Function to read data for a customer
+    given a customer id
+    ...
+
+    Parameters
+    ----------
+    customer_id (str):
+        ID of the customer
+
+    Returns
+    -------
+    JSON data
+    '''
+
+    if customer_id == "12345":
+        item = Customer(customer_id="12345", country="Germany")
+        json_compatible_item_data = jsonable_sncoder(item)
+        return JSONResponse(
+                            content=json_compatible_item_data,
+                        )
+
+    else:
+        # Raise a 404 exception
+        raise HTTPException(
+                            status_code=404,
+                            detail="Item not found"
+                        )
+
+
+@app.post("/customer/{customer_id}/invoice")
+async def create_invoice(customer_id: str, invoice: Invoice) -> str:
+    '''
+    Function to create invoice for a customer
+    ...
+
+    Parameters
+    ----------
+    customer_id (str):
+        ID of the customer
+    invoice (object):
+        object of type Invoice
+    '''
+
+
+
 
 
 
