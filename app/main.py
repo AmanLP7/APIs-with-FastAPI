@@ -12,7 +12,8 @@ The script implements API for customer data using FastAPI module
 from fastapi import FastAPI, status, HTTPException          # Required to create and API and handle status
 from pydantic import BaseModel                              # Type hints
 from typing import Optional                                 # Type annotations
-from fastapi.encoders import 
+from fastapi.encoders import jsonable_encoder               # Encoding data as JSON
+from fastapi.responses import JSONResponse                  # Creating a JSON response 
 
 ########################################################################################################################
 
@@ -167,6 +168,110 @@ async def create_invoice(customer_id: str, invoice: Invoice) -> str:
     invoice (object):
         object of type Invoice
     '''
+
+    # Add the customer link to the invoice
+    invoice.customer.url = "/customer/" + customer_id
+
+    # Convert invoice instance into a JSON string
+    json_invoice = jsonable_encoder(invoice)
+    invoice_table[invoice.invoice_no] = json_invoice
+
+    # Read the invoice from the store and return it
+    ex_invoice = invoice_table[invoice.invoice_no]
+
+    return JSONResponse(content=ex_invoice)
+
+
+@app.get("/customer/{customer_id}/invoice")
+async def get_invoices(customer_id: str) -> str:
+    '''
+    Function to get link of all the invoices
+    given a customer id
+    ...
+
+    Parameters
+    ----------
+    customer_id (str):
+        Unique identifier of the customer
+
+    Returns
+    -------
+    JSON string containing list of all invoices
+    '''
+
+    # Create links to the actual invoice (get from database)
+    ex_json = {
+                "id_123456": "/invoice/123456",
+                "id_789101": "/invoice/789101"
+            }
+
+    return JSONResponse(content=ex_json)
+
+
+@app.get("/invoice/{invoice_no}")
+async def read_invoice(invoice_no: str) -> str:
+    '''
+    Function to read invoice given
+    a invoice number
+    ...
+
+    Parameters
+    ----------
+    invoice_no (str):
+        ID of the invoice
+
+    Returns
+    -------
+    JSON string containing invoice data
+    '''
+
+    ex_invoice = invoice_table[invoice_no]
+
+    return JSONResponse(content=ex_invoice)
+
+
+@app.get("/invoice/{invoice_no}/{stockcode}")
+async def read_item(invoice_no: int, stockcode: str) -> str:
+    '''
+    Function to get stock based on code
+    ...
+
+    Parameters
+    ----------
+    invoice_no (int):
+        Invoice number
+    stockcode (str):
+        Code of the invoice
+
+    Returns
+    -------
+    JSON string containing the item data
+    '''
+
+    return {message: "Hello World"}
+
+
+@app.post("/invoice/{invoice_no}/{stockcode}")
+async def add_item(invoice_no: int, stockcode: str):
+    '''
+    Function to add item to the invoice
+    ...
+
+    Parameters
+    ----------
+    invoice_no (int):
+        invoice number
+    stockcode (str):
+        code of the item
+
+    Returns
+    -------
+    JSON string with added item data
+    '''
+
+    return {message: "Hello World"}
+
+
 
 
 
