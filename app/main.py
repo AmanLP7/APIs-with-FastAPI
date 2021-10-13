@@ -142,7 +142,7 @@ async def read_customer(customer_id: str) -> str:
 
     if customer_id == "12345":
         item = Customer(customer_id="12345", country="Germany")
-        json_compatible_item_data = jsonable_sncoder(item)
+        json_compatible_item_data = jsonable_encoder(item)
         return JSONResponse(
                             content=json_compatible_item_data,
                         )
@@ -270,15 +270,3 @@ async def add_item(invoice_no: int, stockcode: str):
     '''
 
     return {message: "Hello World"}
-
-
-
-
-
-
-
-
-
-
-
-
